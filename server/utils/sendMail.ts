@@ -41,7 +41,5 @@ const sendMail = async (options: EmailOptions): Promise<void> => {
     await transporter.sendMail(mailOptions);
 
 }
-console.log(process.env.SMTP_MAIL, process.env.SMTP_PASS, process.env.SMTP_HOST, process.env.SMTP_PORT);
-console.log('SMTP_PASS:', process.env.SMTP_PASS);
 
 export default sendMail;
