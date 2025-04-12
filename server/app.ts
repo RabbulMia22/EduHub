@@ -16,6 +16,7 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.ORIGIN,
+    credentials: true,
   })
 );
 
@@ -31,7 +32,7 @@ app.get("/test", (req: Request, res: Response, next: NextFunction) => {
 });
 
 // unknown route
-app.all("*path", (req: Request, res: Response, next: NextFunction) => {
+app.all("/*path", (req: Request, res: Response, next: NextFunction) => {
     const err: any = new Error(`Can't find ${req.originalUrl} on this server!`) as any;
     err.statusCode = 404;
     next(err);
