@@ -8,7 +8,8 @@ import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
 
-// register user
+// ----------------- Register User -----------------
+
 interface IRegistrationBody {
   name: string;
   email: string;
@@ -26,17 +27,11 @@ export const registrationUser = CatchAsyncError(
         return next(new ErrorHandeler("Email already exists", 400));
       }
 
-      const user = await userModel.create({
-        name,
-        email,
-        password,
-      });
-
-      const activationToken = createActivatonToken(user);
+      const activationToken = createActivatonToken({ name, email, password });
       const activationCode = activationToken.activationCode;
 
       const data = {
-        user: { name: user.name },
+        user: { name },
         activationCode,
       };
 
@@ -47,7 +42,7 @@ export const registrationUser = CatchAsyncError(
 
       try {
         await sendMail({
-          email: user.email,
+          email,
           subject: "Activate your account",
           template: "activation.mail.ejs",
           data,
@@ -67,12 +62,18 @@ export const registrationUser = CatchAsyncError(
   }
 );
 
+// ----------------- Create Activation Token -----------------
+
 interface IActivationToken {
   token: string;
   activationCode: string;
 }
 
-export const createActivatonToken = (user: any): IActivationToken => {
+export const createActivatonToken = (user: {
+  name: string;
+  email: string;
+  password: string;
+}): IActivationToken => {
   const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
   const token = jwt.sign(
@@ -86,7 +87,8 @@ export const createActivatonToken = (user: any): IActivationToken => {
   return { token, activationCode };
 };
 
-// activate user
+// ----------------- Activate User -----------------
+
 interface IActivationRequest {
   activation_token: string;
   activation_code: string;
@@ -98,10 +100,11 @@ export const activateUser = CatchAsyncError(
       const { activation_token, activation_code } =
         req.body as IActivationRequest;
 
-      const newUser: { user: IUser; activationCode: string } = jwt.verify(
-        activation_token,
-        process.env.ACTIVATION_SECRET as string
-      ) as { user: IUser; activationCode: string };
+      const newUser: { user: IRegistrationBody; activationCode: string } =
+        jwt.verify(
+          activation_token,
+          process.env.ACTIVATION_SECRET as string
+        ) as any;
 
       if (newUser.activationCode !== activation_code) {
         return next(new ErrorHandeler("Invalid activation code", 400));
@@ -114,14 +117,17 @@ export const activateUser = CatchAsyncError(
       if (existUser) {
         return next(new ErrorHandeler("User already exists", 400));
       }
+
       const user = await userModel.create({
         name,
         email,
         password,
+        isActivated: true,
       });
 
       res.status(201).json({
         success: true,
+        message: "Account activated successfully. You can now login.",
       });
     } catch (error: any) {
       return next(new ErrorHandeler(error.message, 400));
