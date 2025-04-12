@@ -1,3 +1,5 @@
+require("dotenv").config();
+import jwt from "jsonwebtoken";
 import mongoose, { Document, Model, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -19,6 +21,8 @@ export interface IUser extends Document {
   createdAt?: Date;
   updatedAt?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
+  SignAccessToken: () => string;
+  SignRefreshToken: () => string;
 }
 
 const userSchema: Schema<IUser> = new mongoose.Schema(
@@ -85,6 +89,16 @@ userSchema.pre<IUser>("save", async function (next) {
   next();
 });
 
+// sign access token
+userSchema.methods.SignAccessToken = function () {
+  return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN || '');
+};
+
+// sign refresh token
+userSchema.methods.SignRefreshToken = function () {
+  return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN || '');
+};
+
 // Compare password
 userSchema.methods.comparePassword = async function (
   enterPassword: string
@@ -93,4 +107,5 @@ userSchema.methods.comparePassword = async function (
 };
 
 const userModel: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+
 export default userModel;

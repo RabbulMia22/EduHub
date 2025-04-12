@@ -7,8 +7,9 @@ import jwt, { Secret } from "jsonwebtoken";
 import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
+import { sendToken } from "../utils/jwt";
 
-// ----------------- Register User -----------------
+// Register User
 
 interface IRegistrationBody {
   name: string;
@@ -62,7 +63,7 @@ export const registrationUser = CatchAsyncError(
   }
 );
 
-// ----------------- Create Activation Token -----------------
+// Create Activation Token
 
 interface IActivationToken {
   token: string;
@@ -87,7 +88,7 @@ export const createActivatonToken = (user: {
   return { token, activationCode };
 };
 
-// ----------------- Activate User -----------------
+// Activate User
 
 interface IActivationRequest {
   activation_token: string;
@@ -128,6 +129,57 @@ export const activateUser = CatchAsyncError(
       res.status(201).json({
         success: true,
         message: "Account activated successfully. You can now login.",
+      });
+    } catch (error: any) {
+      return next(new ErrorHandeler(error.message, 400));
+    }
+  }
+);
+
+// Login User
+interface ILoginRequest {
+  email: string;
+  password: string;
+}
+
+export const loginUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, password } = req.body as ILoginRequest;
+
+      if (!email || !password) {
+        return next(
+          new ErrorHandeler("Please provide email and password", 400)
+        );
+      }
+
+      const user = await userModel.findOne({ email }).select("+password");
+      if (!user) {
+        return next(new ErrorHandeler("Invalid email or password", 400));
+      }
+
+      const isPasswordMatched = await user.comparePassword(password);
+      if (!isPasswordMatched) {
+        return next(new ErrorHandeler("Invalid email or password", 400));
+      }
+
+      sendToken(user, 200, res);
+    } catch (error: any) {
+      return next(new ErrorHandeler(error.message, 400));
+    }
+  }
+);
+
+// logout user
+
+export const logoutUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      res.cookie("access_token", "", { maxAge: 1 });
+      res.cookie("refresh_token", "", { maxAge: 1 });
+      res.status(200).json({
+        success: true,
+        message: "Logged out successfully",
       });
     } catch (error: any) {
       return next(new ErrorHandeler(error.message, 400));
