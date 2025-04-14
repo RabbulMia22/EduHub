@@ -35,5 +35,4 @@ userRouter.put("/update-user-password", isAuthenticated, updateUserPassword);
 
 userRouter.put("/update-user-avatar", isAuthenticated, updateAvatar);
 
-
 export default userRouter;

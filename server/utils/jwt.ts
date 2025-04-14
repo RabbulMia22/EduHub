@@ -31,8 +31,8 @@ export const accessTokenOptions: ITokenOptions = {
 };
 
 export const refreshTokenOptions: ITokenOptions = {
-  expires: new Date(Date.now() + accessTokenExpire * 24 * 60* 60* 1000),
-  maxAge: accessTokenExpire * 24 * 60* 60* 1000,
+  expires: new Date(Date.now() + accessTokenExpire * 24 * 60 * 60 * 1000),
+  maxAge: accessTokenExpire * 24 * 60 * 60 * 1000,
   httpOnly: true,
   sameSite: "lax",
 };
@@ -43,8 +43,6 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
 
   // upload session to redis
   redis.set(user._id as string, JSON.stringify(user) as any);
-
-  
 
   // only set secure to true if the app is in production
   if (process.env.NODE_ENV === "production") {

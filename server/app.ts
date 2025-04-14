@@ -21,21 +21,23 @@ app.use(
 );
 
 // routes
-app.use("/api/v1",userRouter);
+app.use("/api/v1", userRouter);
 
 // testing api
 app.get("/test", (req: Request, res: Response, next: NextFunction) => {
   res.status(200).json({
-    success: true, 
+    success: true,
     message: "Api is working",
   });
 });
 
 // unknown route
 app.all("/*path", (req: Request, res: Response, next: NextFunction) => {
-    const err: any = new Error(`Can't find ${req.originalUrl} on this server!`) as any;
-    err.statusCode = 404;
-    next(err);
-  });
-  
-  app.use(ErrorMiddleware);
+  const err: any = new Error(
+    `Can't find ${req.originalUrl} on this server!`
+  ) as any;
+  err.statusCode = 404;
+  next(err);
+});
+
+app.use(ErrorMiddleware);
