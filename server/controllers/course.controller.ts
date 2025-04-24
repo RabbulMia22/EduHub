@@ -5,6 +5,7 @@ import cloudinary from "cloudinary";
 import { createCourse } from "../services/course.service";
 import CourseModel from "../models/course.model";
 import { redis } from "../utils/redis";
+import mongoose from "mongoose";
 
 // upload course
 export const uploadCourse = CatchAsyncError(
@@ -126,6 +127,85 @@ export const getAllCourses = CatchAsyncError(
           courses,
         });
       }
+    } catch (error: any) {
+      return next(new ErrorHandeler(error.message, 500));
+    }
+  }
+);
+
+// get course content --only for valid user
+export const getCourseByUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userCourseList = req.user?.courses;
+      const courseId = req.params.id;
+
+      const courseExixts = userCourseList?.find(
+        (course: any) => course._id.toString() === courseId
+      );
+
+      if (!courseExixts) {
+        return next(
+          new ErrorHandeler("You have not purchased this course", 400)
+        );
+      }
+
+      const course = await CourseModel.findById(courseId);
+
+      const content = course?.courseData;
+
+      res.status(200).json({
+        success: true,
+        content,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandeler(error.message, 500));
+    }
+  }
+);
+
+// add question in course
+interface IAddQuestion {
+  question: string;
+  courseId: string;
+  contentId: string;
+}
+
+export const addQuestion = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { question, courseId, contentId }: IAddQuestion = req.body;
+
+      const course = await CourseModel.findById(courseId);
+
+      if (!mongoose.Types.ObjectId.isValid(courseId)) {
+        return next(new ErrorHandeler("Invalid course id", 400));
+      }
+
+      const courseContent = course?.courseData.find((item: any) =>
+        item._id.equals(contentId)
+      );
+
+      if (!courseContent) {
+        return next(new ErrorHandeler("Invalid course content id", 400));
+      }
+      // create a new question object
+      const newQuestion: any = {
+        user: req.user,
+        question,
+        questionReplies: [],
+      };
+
+      // add the new question to the course content
+      courseContent.questions.push(newQuestion);
+
+      // save the updated course
+      await course?.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Question added successfully",
+      });
     } catch (error: any) {
       return next(new ErrorHandeler(error.message, 500));
     }
