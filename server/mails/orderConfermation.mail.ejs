@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f9f4; /* Light green background */
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            width: 100%;
+            background-color: #ffffff;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #d4e4d2; /* Light green border */
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            background-color: #e2f4e2; /* Light green background for header */
+            border-radius: 5px;
+            padding: 15px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #3a6a3b; /* Darker green for the title */
+        }
+        .order-info {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: 1px solid #dcdcd2; /* Light border */
+        }
+        .order-info p {
+            margin: 5px 0;
+            color: #2d2d2d;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f7f7f;
+        }
+        .button {
+            background-color: #4CAF50; /* Green button */
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #45a049; /* Slightly darker green on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Order Confirmation</h1>
+            <p>Thank you for your order! We're processing it now and will notify you once it's ready.</p>
+        </div>
+
+        <div class="order-info">
+            <p><strong>Order ID:</strong> <%= order._id %></p>
+            <p><strong>Course Name:</strong> <%= order.name %></p>
+            <p><strong>Price:</strong> $<%= order.price %></p>
+            <p><strong>Order Date:</strong> <%= order.date %></p>
+        </div>
+
+        <p>If you have any questions or concerns, feel free to contact us at <a href="mailto:support@yourcompany.com">support@yourcompany.com</a></p>
+
+        <a href="<%= order.demoUrl %>" class="button">View Course Demo</a>
+
+        <div class="footer">
+            <p>© 2025 Your Company | All rights reserved</p>
+        </div>
+    </div>
+</body>
+</html>

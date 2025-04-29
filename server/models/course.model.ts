@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
 import { IUser } from "./user.model";
 
 export interface IComment extends Document {
@@ -32,7 +32,8 @@ interface ICourseData extends Document {
   questions: IComment[];
 }
 
-interface ICourse extends Document {
+export interface ICourse extends Document {
+  _id: Types.ObjectId;
   name: string;
   discription: string;
   price: number;
@@ -132,8 +133,5 @@ const courseSchema = new Schema<ICourse>({
   },
 });
 
-const CourseModel: Model<ICourse> = mongoose.model(
-  "Course",
-  courseSchema
-);
+const CourseModel: Model<ICourse> = mongoose.model("Course", courseSchema);
 export default CourseModel;

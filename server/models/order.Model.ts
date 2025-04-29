@@ -1,25 +1,28 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IOrder extends Document {
-    courseId: string;
-    userId: string;
-    payment_info: object;
+  courseId: string;
+  userId: string;
+  payment_info: object;
 }
 
-const OrderSchema = new Schema<IOrder>({
+const OrderSchema = new Schema<IOrder>(
+  {
     courseId: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     userId: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     payment_info: {
-        type: Object,
-        // required: true,
+      type: Object,
+      // required: true,
     },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
 const OrderModel: Model<IOrder> = mongoose.model<IOrder>("Order", OrderSchema);
 
